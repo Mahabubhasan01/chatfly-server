@@ -1,6 +1,9 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+
 from .models import ChatMessage
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -26,9 +29,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message_content = data.get('message')
 
         if message_content:
-            # Create a new ChatMessage instance
-            chat_message = ChatMessage(content=message_content)
-            chat_message.save()
+            # Save the chat message asynchronously
+            await self.save_chat_message(message_content)
 
             # Broadcast the message to all connected clients
             await self.channel_layer.group_send(
@@ -38,6 +40,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'message': message_content
                 }
             )
+
+    @database_sync_to_async
+    def save_chat_message(self, message_content):
+        # Create and save the ChatMessage instance
+        chat_message = ChatMessage(content=message_content)
+        chat_message.save()
 
     async def chat_message(self, event):
         message = event['message']
