@@ -25,12 +25,13 @@ SECRET_KEY = 'django-insecure-uo#-)ci#ma%dhy2bvkact78uj0xlj0j(fx)_25of%oxnt$4l=t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     'channels',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -70,8 +71,8 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'chatfly_server.Asgi.application'
-
+#ASGI_APPLICATION = 'chatfly_server.asgi.application'
+ASGI_APPLICATION = "chatfly_server.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
