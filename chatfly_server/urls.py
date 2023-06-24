@@ -21,5 +21,7 @@ from chat import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/save_chat_message/', include('chat.urls')),
+    path('', include('chat.urls')),
+    path('api-auth/', include('rest_framework.urls'))
+
 ]
