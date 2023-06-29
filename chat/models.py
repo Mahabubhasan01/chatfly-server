@@ -1,6 +1,10 @@
+from email.policy import default
+import imp
+from tkinter.tix import Tree
 from django.db import models
-from django.contrib.auth.models import User
 # myapp/models.py
+import uuid
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
@@ -24,9 +28,17 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser):
+    Id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    username = models.CharField(
+        verbose_name="username", max_length=200, unique=True)
+    full_name = models.CharField(
+        verbose_name="fullname", max_length=200, blank=True)
+    image = models.ImageField(
+        upload_to='images/', default='images/profile_image.png')
+    is_admin = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -34,7 +46,7 @@ class CustomUser(AbstractBaseUser):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    REQUIRED_FIELDS = ['username', 'full_name']
 
     def has_perm(self, perm, obj=None):
         return self.is_admin
@@ -54,9 +66,9 @@ class Message(models.Model):
 
 class ChatMessage(models.Model):
     sender = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='sent_messages', null=True)
+        CustomUser, on_delete=models.CASCADE, related_name='sent_messages', null=True)
     receiver = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='received_messages', blank=True)
+        CustomUser, on_delete=models.CASCADE, related_name='received_messages', blank=True)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
