@@ -49,6 +49,9 @@ class CustomUser(AbstractBaseUser):
         verbose_name="fullname", max_length=200, blank=True)
     image = models.ImageField(
         upload_to='images/', default='images/profile_image.png')
+    last_login = models.DateTimeField(
+        verbose_name='last login', auto_now=True, blank=True, null=True)
+
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -57,6 +60,9 @@ class CustomUser(AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'full_name']
+
+    def formatted_last_login(self):
+        return self.last_login.strftime('%B %d, %Y, %I:%M %p')
 
     def has_perm(self, perm, obj=None):
         return self.is_admin
@@ -71,6 +77,9 @@ class CustomUser(AbstractBaseUser):
 class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def formatted_timestamp(self):
+        return self.timestamp.strftime('%B %d, %Y, %I:%M %p')
     # Add additional fields if necessary (e.g., sender, room, etc.)
 
 
