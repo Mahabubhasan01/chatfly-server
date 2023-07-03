@@ -1,24 +1,22 @@
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
-from django.http import JsonResponse
-from django.http import JsonResponse
+from rest_framework import generics
 from .models import Message, CustomUser, ChatMessage
 from .serializers import ChatMessageSerializer, MessageSerializer, CustomUserSerializer
-from rest_framework import generics
 
 
-def save_chat_message(request):
-    if request.method == 'POST':
-        message_content = request.POST.get('message')
-
-        # Create a new ChatMessage instance
-        chat_message = Message(content=message_content)
-        chat_message.save()
-
-        return JsonResponse({'success': True})
-
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+# ChatMessage API views
+class ChatMessageList(generics.ListCreateAPIView):
+    queryset = ChatMessage.objects.all()
+    serializer_class = ChatMessageSerializer
 
 
+class ChatMessageDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ChatMessage.objects.all()
+    serializer_class = ChatMessageSerializer
+
+
+# Message API views
 class MessageList(generics.ListCreateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
@@ -29,31 +27,7 @@ class MessageDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MessageSerializer
 
 
-def save_chat_messages(request):
-    if request.method == 'POST':
-        message_content = request.POST.get('message')
-
-        # Create a new ChatMessage instance
-        chat_message = ChatMessage(content=message_content)
-        chat_message.save()
-
-        return JsonResponse({'success': True})
-
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-
-class ChatMessageList(generics.ListCreateAPIView):
-    queryset = ChatMessage.objects.all()
-    serializer_class = ChatMessageSerializer
-
-
-class ChatMessageDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ChatMessage.objects.all()
-    serializer_class = ChatMessageSerializer
-
-# Customuser-api
-
-
+# CustomUser API views
 class CustomUserList(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
@@ -63,10 +37,27 @@ class CustomUserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
+
+# Save chat messages view
+def save_chat_message(request):
+    if request.method == 'POST':
+        message_content = request.POST.get('message')
+        receiver = request.POST.get('receiver')
+
+        # Create a new ChatMessage instance
+        chat_message = ChatMessage(content=message_content, receiver=receiver)
+        chat_message.save()
+
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+# Login view
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             # Login successful

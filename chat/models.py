@@ -9,18 +9,31 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    def create_user(self, email, username, full_name, password=None):
         if not email:
-            raise ValueError("The Email field must be set.")
+            raise ValueError('The Email field must be set')
+        if not username:
+            raise ValueError('The Username field must be set')
+        if not full_name:
+            raise ValueError('The Full Name field must be set')
 
-        email = self.normalize_email(email)
-        user = self.model(email=email)
+        user = self.model(
+            email=self.normalize_email(email),
+            username=username,
+            full_name=full_name,
+        )
+
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None):
-        user = self.create_user(email, password)
+    def create_superuser(self, email, username, full_name, password=None):
+        user = self.create_user(
+            email=email,
+            username=username,
+            full_name=full_name,
+            password=password,
+        )
         user.is_admin = True
         user.is_staff = True
         user.save(using=self._db)
@@ -38,9 +51,6 @@ class CustomUser(AbstractBaseUser):
         upload_to='images/', default='images/profile_image.png')
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-
-    is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     objects = CustomUserManager()
